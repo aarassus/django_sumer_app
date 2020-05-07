@@ -1,0 +1,26 @@
+<html>
+
+
+<head>
+
+    <title>Sumer'app</title>
+
+</head>
+
+
+<body>
+    <div class="container">
+        <h2>Résumer un article de journal</h2>
+        <form action={%url 'resumeur' %} method="post">
+            {% csrf_token %}
+            <input id="url"  type="texte" name="input_texte" value="Coller une url valide">
+            <div class="form-row align-items-center">
+                <div class="col-auto my-1">
+                    <button type="submit" class="btn btn-primary">Résumer</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+
+
