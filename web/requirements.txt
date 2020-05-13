@@ -13,4 +13,5 @@ newspaper3k
 ktrain
 torch
 torchvision
-tensorflow
+tensorflow==2.1.*
+django-bootstrap4

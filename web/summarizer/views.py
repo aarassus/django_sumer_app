@@ -3,15 +3,30 @@ from django.http import HttpResponse
 from validator_collection import validators, checkers
 
 
+
 import nltk
 import transformers
-from transformers import pipeline
+from transformers import WEIGHTS_NAME, CONFIG_NAME, AutoTokenizer, AutoModelWithLMHead, pipeline
 from newspaper import Article
 from ktrain import text
 nltk.download('punkt')
 
 def accueil(request):
-    return render(request, "summarizer/accueil.html") 
+    try:
+        input_texte = request.POST['input_texte']
+        if checkers.is_url(input_texte):
+            url = input_texte
+            dico = article_extraction(url)
+                #article_dico["summary_2"] = ktrain_texte_resumeur(article_dico["texte"], lang='fr')
+                
+        else:
+            dico = texte_resumeur(input_texte)
+        #except: pass
+            dico.update({'input_texte':input_texte})
+        return render(request, "summarizer/accueil.html", dico) 
+
+    except:
+        return render(request, "summarizer/accueil.html") 
  
 
 
@@ -20,13 +35,21 @@ def resumeur(request):
     #try:
     if checkers.is_url(input_texte):
         url = input_texte
-        article_dico = article_extraction(url)
+        dico = article_extraction(url)
             #article_dico["summary_2"] = ktrain_texte_resumeur(article_dico["texte"], lang='fr')
             
-        #else:
-            #pass
+    else:
+        dico = texte_resumeur(input_texte)
     #except: pass
-    return render(request, "summarizer/result.html", article_dico) 
+    return render(request, "summarizer/accueil.html", dico) 
+
+
+def texte_resumeur(input_texte):
+    tokenizer = AutoTokenizer.from_pretrained("/code/summarizer/static/summarizer/model/t5-small")
+    model = AutoModelWithLMHead.from_pretrained("/code/summarizer/static/summarizer/model/t5-small")
+    summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
+    dico = summarizer(input_texte)[0]
+    return dico
 
 
 def article_extraction(url, lang='fr'):
@@ -44,9 +67,9 @@ def article_extraction(url, lang='fr'):
     title = article.title
     text = article.text
     summary = article.summary
-    summary_2 = ktrain_texte_resumeur(text, lang='fr')
+    #summary_2 = ktrain_texte_resumeur(text, lang='fr')
     keywords = article.keywords
-    article_dico = {'title':title, 'texte':text, 'summary':summary, 'summary_2':summary_2, 'keywords': keywords}
+    article_dico = {'title':title, 'texte':text, 'summary':summary, """'summary_2':summary_2,""" 'keywords': keywords}
 
     return article_dico
 
