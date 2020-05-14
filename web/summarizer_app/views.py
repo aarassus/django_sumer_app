@@ -47,7 +47,7 @@ def texte_summarizer(input_texte, ratio=0.5):
         dico = {'summary_text': result}
     except:
         import_bert()
-        dico = texte_summarizer(input_texte, ratio=0.5)
+        dico = texte_summarizer(input_texte, ratio)
     return dico
 
 
