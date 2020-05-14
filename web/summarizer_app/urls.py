@@ -4,4 +4,5 @@ from django.contrib import admin
 
 urlpatterns = [
     path('accueil', views.accueil, name='accueil'),
+    
 ]

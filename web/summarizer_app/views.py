@@ -1,5 +1,7 @@
 from django.shortcuts import render
-from transformers import AutoConfig, AutoTokenizer, AutoModel
+import os
+import torch
+from transformers import AutoConfig, AutoTokenizer, AutoModel, AutoModelWithLMHead, WEIGHTS_NAME, CONFIG_NAME
 from summarizer import Summarizer
 
 
@@ -35,11 +37,28 @@ def texte_summarizer(input_texte, ratio=0.5):
     BODY:
         On charge depuis le dossier static/model le modele de NLP à utiliser puis on l'applique au texte à résumer
     """
-    custom_config = AutoConfig.from_pretrained("static/model/camembert-base")
-    custom_config.output_hidden_states=True
-    custom_tokenizer = AutoTokenizer.from_pretrained("static/model/camembert-base")
-    custom_model = AutoModel.from_pretrained("static/model/camembert-base", config=custom_config )
-    model = Summarizer(custom_model=custom_model, custom_tokenizer=custom_tokenizer,)
-    result = model(input_texte, ratio=ratio)
-    dico = {'summary_text': result}
+    try:
+        custom_config = AutoConfig.from_pretrained("static/model/camembert-base")
+        custom_config.output_hidden_states=True
+        custom_tokenizer = AutoTokenizer.from_pretrained("static/model/camembert-base")
+        custom_model = AutoModel.from_pretrained("static/model/camembert-base", config=custom_config )
+        model = Summarizer(custom_model=custom_model, custom_tokenizer=custom_tokenizer,)
+        result = model(input_texte, ratio=ratio)
+        dico = {'summary_text': result}
+    except:
+        import_bert()
+        dico = texte_summarizer(input_texte, ratio=0.5)
     return dico
+
+
+def import_bert():
+    my_dir = 'static/model/camembert-base'
+    tokenizer = AutoTokenizer.from_pretrained("camembert-base")
+    model = AutoModelWithLMHead.from_pretrained("camembert-base")
+    model_to_save = model.module if hasattr(model, 'module') else model
+    output_model_file = os.path.join(my_dir, WEIGHTS_NAME)
+    output_config_file = os.path.join(my_dir, CONFIG_NAME)
+    torch.save(model_to_save.state_dict(), output_model_file)
+    model_to_save.config.to_json_file(output_config_file)
+    tokenizer.save_pretrained(my_dir)
+
