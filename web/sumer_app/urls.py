@@ -17,11 +17,11 @@ from django.contrib import admin
 from django.conf.urls import url
 from django.urls import path
 from django.urls import include
-from summarizer import views
+from summarizer_app import views
 
 
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
-    path('summarizer/', include('summarizer.urls'))
+    path('summarizer_app/', include('summarizer_app.urls'))
     
 ]

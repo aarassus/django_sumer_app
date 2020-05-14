@@ -12,6 +12,8 @@ ADD requirements.txt /code/
 
 # Install requirements
 RUN pip install --upgrade pip
+RUN pip install torch
+RUN pip install torchvision
 RUN pip install -r /code/requirements.txt
 
 # Add the current directory(the web folder) to Docker container
